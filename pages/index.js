@@ -4,6 +4,8 @@ import TextEffect from "../components/elements/TextEffect";
 import Layout from "../components/layout/Layout";
 import Slider1 from "../components/slider/Slider1";
 import Link from "next/link";
+import Script from "next/script";
+import YoutubeEmbed from "../components/elements/YoutubeEmbed";
 
 function Home() {
   const [inViewport, setInViewport] = useState(false);
@@ -36,6 +38,7 @@ function Home() {
             backgroundImage: "url('assets/imgs/backgrounds/intersect.svg')",
           }}
         >
+          <div class="prefinery-form-embed"></div>
           <div className="container px-4 mx-auto">
             <div className="pt-12 text-center">
               <div className="max-w-2xl mx-auto mb-8">
@@ -403,14 +406,11 @@ function Home() {
                 data-wow-delay=".3s"
               >
                 <div className="p-12 bg-white shadow rounded">
-                  <div className="flex w-12 h-12 mx-auto items-center justify-center text-blue-800 font-bold font-heading bg-blue-200 rounded-full">
+                  <div className="flex w-12 mb-1 h-12 mx-auto items-center justify-center text-blue-800 font-bold font-heading bg-blue-200 rounded-full">
                     1
                   </div>
-                  <img
-                    className="h-36 mx-auto my-4"
-                    src="/assets/imgs/illustrations/eating.svg"
-                    alt="Monst"
-                  />
+
+                  <YoutubeEmbed embedId="-bi-PZk6eFM" />
                   <h3 className="mb-2 font-bold font-heading text-xl">
                     Project Initialization
                   </h3>

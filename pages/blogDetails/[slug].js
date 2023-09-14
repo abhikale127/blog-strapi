@@ -4,30 +4,39 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import axios from "axios";
 
-export async function getServerSideProps() {
-  // Fetch data from external API
-  var myHeaders = new Headers();
-  myHeaders.append(
-    "Authorization",
-    "Bearer 3e6fce4f34c4fff7a81f239ef287b2489faff60413f555ece563524e6b58de423bfb578960ea8485c561a9c8b65e51b66a90c33da066be5183b86b278e9b33aba777b6b51d4c350dffd7c42d5c1ccccef186435a61aca59c103269c9cd4153b9878abf8660fc3f1b0dbc243fdb2732104be82fbe17157b40e8df79ed0b14d99c"
-  );
-  var data = [];
-  var requestOptions = {
-    method: "GET",
-    headers: myHeaders,
-    redirect: "follow",
-  };
-  //   const router = useRouter();
-  //   //same name as name of your file, can be [slug].js; [specialId].js - any name you want
-  //   const { slug } = router.query;
+export async function getServerSideProps(context) {
+  const { slug } = context.query;
+  console.log(slug);
+  try {
+    const myHeaders = new Headers();
+    myHeaders.append(
+      "Authorization",
+      "Bearer 3e6fce4f34c4fff7a81f239ef287b2489faff60413f555ece563524e6b58de423bfb578960ea8485c561a9c8b65e51b66a90c33da066be5183b86b278e9b33aba777b6b51d4c350dffd7c42d5c1ccccef186435a61aca59c103269c9cd4153b9878abf8660fc3f1b0dbc243fdb2732104be82fbe17157b40e8df79ed0b14d99c"
+    );
 
-  const data = await fetch(
-    `http://localhost:1337/api/Blogs?filters[slug][$eq]=How-to-Develop-a-Content-Strategy-for-Instagram?`,
-    requestOptions
-  );
+    const requestOptions = {
+      method: "GET",
+      headers: myHeaders,
+      redirect: "follow",
+    };
 
-  return { props: { data } };
-  // Pass data to the page via props
+    const response = await fetch(
+      `http://localhost:1337/api/Blogs?filters[slug][$eq]=${slug}&populate=*`,
+      requestOptions
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const data = await response.json(); // Parse the response as JSON
+    console.log(data);
+
+    return { props: { data } };
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    return { props: { data: null } }; // Handle errors gracefully
+  }
 }
 
 const BlogSingle = ({ data }) => {
@@ -60,7 +69,7 @@ const BlogSingle = ({ data }) => {
           <div
             className="pt-20 pb-8 mb-12 bg-cover bg-no-repeat"
             style={{
-              backgroundImage: "url('assets/imgs/placeholders/img-14.jpg')",
+              backgroundImage: `url('http://localhost:1337${data.data[0].attributes.thumbnail.data[0].attributes.url}')`,
             }}
           >
             <div className="container">
@@ -75,11 +84,11 @@ const BlogSingle = ({ data }) => {
                       </a>
                     </Link>
                     <span className="text-blueGray-200 text-sm">
-                      {blogDetails?.attributes?.date}
+                      {/* {blogDetails?.attributes?.date} */}
                     </span>
                   </span>
                   <h2 className="text-4xl md:text-5xl mt-4 text-white font-bold font-heading">
-                    {blogDetails?.attributes?.date}
+                    {data.data[0].attributes.title}
                   </h2>
                 </div>
                 <div className="flex justify-center mb-8">
@@ -99,271 +108,12 @@ const BlogSingle = ({ data }) => {
             </div>
           </div>
           <div className="container">
-            <div className="max-w-2xl mx-auto">
-              <p
-                className="mb-6 leading-loose text-blueGray-400 wow animate__animated animate__fadeIn animated"
-                data-wow-delay=".1s"
-              >
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                Praesent commodo est eget consequat imperdiet. Suspendisse
-                laoreet scelerisque lobortis. Mauris facilisis hendrerit nulla
-                at vehicula. Suspendisse potenti. Ut in nulla a purus bibendum
-                convallis. Suspendisse id nunc maximus, suscipit nte ac,
-                vulputate massa. Sed ut nunc suscipit, bibendum arcu a, interdum
-                elit. Nullam laoreet mollis dictum. Ut suscipit, magna at
-                elementum iaculis, erat erat fermentum justo, sit amet ultrices
-                enim leo sit amet purus. Nulla sed erat molestie, auctor mauris
-                lobortis, iaculis justo.
-              </p>
-              <div
-                className="w-full mx-auto px-12 pt-5 pb-10 wow animate__animated animate__fadeIn animated"
-                data-wow-delay=".1s"
-              >
-                <div className="w-full mb-6 border-l-4 border-gray-100">
-                  <p className="text-lg text-gray-600 px-5">
-                    Lorem, ipsum dolor sit amet consectetur adipisicing elit.
-                    Nam obcaecati laudantium recusandae, debitis eum voluptatem
-                    ad, illo voluptatibus temporibus odio provident.
-                  </p>
-                </div>
-                <div className="w-full pl-6">
-                  <p className="text-md text-indigo-500 font-bold">
-                    Scott Windon
-                  </p>
-                  <p className="text-xs text-gray-500">@scott.windon</p>
-                </div>
-              </div>
-              <p
-                className="mb-6 leading-loose text-blueGray-400 wow animate__animated animate__fadeIn animated"
-                data-wow-delay=".1s"
-              >
-                Duis hendrerit dui in dui ornare luctus. Nullam gravida
-                tincidunt lorem cursus suscipit. Integer scelerisque sem et sem
-                porta, eu volutpat mi tempor. Duis interdum sodales lacus non
-                tempor. Nam mattis, sapien a commodo ultrices, nunc orci
-                tincidunt ante, tempus tempus turpis metus laoreet lacus.
-                Praesent condimentum, arcu ut fringilla tincidunt, augue diam
-                pretium augue, sit amet vestibulum nunc felis vel metus. Duis
-                dolor nulla, pellentesque non ultrices ut, convallis eu felis.
-                Duis luctus tempor arcu, vitae elementum massa porta non. Morbi
-                aliquet, neque ut volutpat sodales, dui enim facilisis enim, ut
-                dictum lacus neque in urna. Nam metus elit, ullamcorper pretium
-                nisi at, aliquet gravida lectus. Nullam id lectus pellentesque,
-                suscipit dolor eget, consequat velit. Pellentesque finibus
-                commodo nisl, id interdum leo. Maecenas aliquam felis justo, ut
-                sagittis nunc maximus ut.
-              </p>
-              <p
-                className="leading-loose text-blueGray-400 wow animate__animated animate__fadeIn animated"
-                data-wow-delay=".1s"
-              >
-                Duis dolor nulla, pellentesque non ultrices ut, convallis eu
-                felis. Duis luctus tempor arcu, vitae elementum massa porta non.
-                Morbi aliquet, neque ut volutpat sodales, dui enim facilisis
-                enim, ut dictum lacus neque in urna. Nam metus elit, ullamcorper
-                pretium nisi at, aliquet gravida lectus. Nullam id lectus
-                pellentesque, suscipit dolor eget, consequat velit. Pellentesque
-                finibus commodo nisl, id interdum leo. Maecenas aliquam felis
-                justo, ut sagittis nunc maximus ut.
-              </p>
-              <a
-                href="#"
-                target="_blank"
-                className="inline-flex items-center text-gray-600 dark:text-gray-200 hover:underline mt-8 wow animate__animated animate__fadeIn animated"
-                data-wow-delay=".1s"
-              >
-                <svg viewBox="0 0 512 512" className="w-6 h-6 fill-current">
-                  <title>Logo Twitter</title>
-                  <path d="M496 109.5a201.8 201.8 0 01-56.55 15.3 97.51 97.51 0 0043.33-53.6 197.74 197.74 0 01-62.56 23.5A99.14 99.14 0 00348.31 64c-54.42 0-98.46 43.4-98.46 96.9a93.21 93.21 0 002.54 22.1 280.7 280.7 0 01-203-101.3A95.69 95.69 0 0036 130.4c0 33.6 17.53 63.3 44 80.7A97.5 97.5 0 0135.22 199v1.2c0 47 34 86.1 79 95a100.76 100.76 0 01-25.94 3.4 94.38 94.38 0 01-18.51-1.8c12.51 38.5 48.92 66.5 92.05 67.3A199.59 199.59 0 0139.5 405.6a203 203 0 01-23.5-1.4A278.68 278.68 0 00166.74 448c181.36 0 280.44-147.7 280.44-275.8 0-4.2-.11-8.4-.31-12.5A198.48 198.48 0 00496 109.5z"></path>
-                </svg>
-                <span className="mx-2">Share on twitter</span>
-              </a>
-
-              <div className="flex flex-wrap mt-12 mb-12">
-                <div className="w-full">
-                  <div
-                    className="px-6 py-10 bg-white shadow rounded hover-up-5 wow animate__animated animate__fadeIn animated border border-gray-100 hover:border-gray-200"
-                    data-wow-delay=".1s"
-                  >
-                    <div className="flex items-center mb-4">
-                      <img
-                        className="h-16 w-16 rounded-full object-cover"
-                        src="/assets/imgs/placeholders/avatar-1.png"
-                        alt="Monst"
-                      />
-                      <div className="pl-4">
-                        <strong className="mt-6 mb-1 text-md">
-                          Geraldine Tusoy
-                        </strong>
-                        <p className="text-xs mt-3">CEO, Co Founders</p>
-                      </div>
-                    </div>
-                    <p className="leading-loose mb-5 text-sm">
-                      Donec consequat tortor risus, at auctor felis consequat a.
-                      Donec quis dolor sem. Sed sollicitudin magna in hendrerit
-                      pulvinar. Vestibulum non quam velit.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="antialiased mx-auto max-w-screen-sm">
-                <h3 className="mb-6 text-3xl font-semibold text-gray-900">
-                  Comments
-                </h3>
-                <div className="space-y-4">
-                  <div className="flex">
-                    <div className="flex-shrink-0 mr-3">
-                      <img
-                        className="mt-2 rounded-full w-8 h-8 sm:w-10 sm:h-10"
-                        src="/assets/imgs/placeholders/avatar-2.png"
-                        alt="Monst"
-                      />
-                    </div>
-                    <div className="flex-1 border border-gray-100 rounded-lg px-4 py-2 sm:px-6 sm:py-4 leading-relaxed">
-                      <strong>Kolawole</strong>
-                      <span className="text-xs text-gray-400">3:34 PM</span>
-                      <p className="text-sm">
-                        Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
-                        sed diam nonumy eirmod tempor invidunt ut labore et
-                        dolore magna aliquyam erat, sed diam voluptua.
-                      </p>
-                      <div className="mt-4 flex items-center">
-                        <div className="flex -space-x-2 mr-2">
-                          <img
-                            className="rounded-full w-6 h-6 border border-white"
-                            src="/assets/imgs/placeholders/avatar-3.png"
-                            alt="Monst"
-                          />
-                          <img
-                            className="rounded-full w-6 h-6 border border-white"
-                            src="/assets/imgs/placeholders/avatar-4.png"
-                            alt="Monst"
-                          />
-                        </div>
-                        <div className="text-sm text-gray-500 font-semibold">
-                          5 Replies
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex">
-                    <div className="flex-shrink-0 mr-3">
-                      <img
-                        className="mt-2 rounded-full w-8 h-8 sm:w-10 sm:h-10"
-                        src="/assets/imgs/placeholders/avatar-5.png"
-                        alt="Monst"
-                      />
-                    </div>
-                    <div className="flex-1 border border-gray-100 rounded-lg px-4 py-2 sm:px-6 sm:py-4 leading-relaxed">
-                      <strong>Fulton</strong>
-                      <span className="text-xs text-gray-400">3:34 PM</span>
-                      <p className="text-sm">
-                        Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
-                        sed diam nonumy eirmod tempor invidunt ut labore et
-                        dolore magna aliquyam erat, sed diam voluptua.
-                      </p>
-                      <h4 className="my-5 uppercase tracking-wide text-gray-400 font-bold text-xs">
-                        Replies
-                      </h4>
-                      <div className="space-y-4">
-                        <div className="flex">
-                          <div className="flex-shrink-0 mr-3">
-                            <img
-                              className="mt-3 rounded-full w-6 h-6 sm:w-8 sm:h-8"
-                              src="/assets/imgs/placeholders/avatar-6.png"
-                              alt="Monst"
-                            />
-                          </div>
-                          <div className="flex-1 bg-gray-50 rounded-lg px-4 py-2 sm:px-6 sm:py-4 leading-relaxed">
-                            <strong>Clara </strong>
-                            <span className="text-xs text-gray-400">
-                              3:34 PM
-                            </span>
-                            <p className="text-xs sm:text-sm">
-                              Lorem ipsum dolor sit amet, consetetur sadipscing
-                              elitr, sed diam nonumy eirmod tempor invidunt ut
-                              labore et dolore magna aliquyam erat, sed diam
-                              voluptua.
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex">
-                          <div className="flex-shrink-0 mr-3">
-                            <img
-                              className="mt-3 rounded-full w-6 h-6 sm:w-8 sm:h-8"
-                              src="/assets/imgs/placeholders/avatar-7.png"
-                              alt="Monst"
-                            />
-                          </div>
-                          <div className="flex-1 bg-gray-50 rounded-lg px-4 py-2 sm:px-6 sm:py-4 leading-relaxed">
-                            <strong>Dany </strong>
-                            <span className="text-xs text-gray-400">
-                              3:34 PM
-                            </span>
-                            <p className="text-xs sm:text-sm">
-                              Lorem ipsum dolor sit amet, consetetur sadipscing
-                              elitr, sed diam nonumy eirmod tempor invidunt ut
-                              labore et dolore magna aliquyam erat, sed diam
-                              voluptua.
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mb-4 mt-12">
-                <form className="w-full max-w-xl bg-white rounded-lg">
-                  <div className="flex flex-wrap mb-6">
-                    <h2 className="pt-3 pb-2 text-gray-800 text-lg font-bold">
-                      Add a new comment
-                    </h2>
-                    <div className="w-full md:w-full mb-2 mt-2">
-                      <textarea
-                        className="bg-gray-100 rounded border border-gray-100 leading-normal resize-none w-full h-32 py-4 px-3 focus:outline-none focus:bg-white text-sm"
-                        name="body"
-                        placeholder="Type Your Comment"
-                        required
-                      ></textarea>
-                    </div>
-                    <div className="w-full md:w-full flex items-start md:w-full px-1">
-                      <div className="flex items-start w-1/2 text-gray-700 px-2 mr-auto">
-                        <svg
-                          fill="none"
-                          className="w-5 h-5 text-gray-600 mr-1"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                          />
-                        </svg>
-                        <p className="text-xs md:text-xs pt-px">
-                          Some HTML is okay.
-                        </p>
-                      </div>
-                    </div>
-                    <button className="transition duration-300 ease-in-out transform hover:-translate-y-1 block p-4 text-center text-xs text-white font-semibold leading-none bg-blue-500 hover:bg-blue-700 rounded mt-6">
-                      Post Comment
-                    </button>
-                  </div>
-                </form>
-              </div>
-              <div className="transition duration-300 ease-in-out transform hover:-translate-y-1 flex items-center justify-center mt-12">
-                <Link href="/blog" legacyBehavior>
-                  <a className="px-4 py-2 mt-2 text-gray-600 transition-colors duration-200 transform border border-gray-100 rounded-lg dark:text-gray-200 dark:border-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none">
-                    {" "}
-                    Read More Articles{" "}
-                  </a>
-                </Link>
-              </div>
-            </div>
+            <div
+              className="max-w-2xl mx-auto"
+              dangerouslySetInnerHTML={{
+                __html: data.data[0].attributes.content,
+              }}
+            />
           </div>
         </section>
 
